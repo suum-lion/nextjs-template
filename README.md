@@ -32,12 +32,10 @@ $ yarn --development
 
 Use husky to check lint and formatting before committing, and check the convention of the commit message.
 
-### storybook
-
-You can access port 5001.
+To View the log:
 
 ```bash
-$ docker-compose up -d sb
+$ docker-compose logs -f dev
 ```
 
 ### Commit Message Convention
@@ -69,7 +67,23 @@ $ yarn release -- --release-as minor
 $ yarn release -- --release-as patch
 ```
 
-### storybook
+### Storybook
+
+In development, run it:
+
+```bash
+$ docker-compose up -d sb
+# or
+$ yarn sb
+
+# runs on port 5001
+```
+
+To view the log:
+
+```bash
+$ docker-compose logs -f sb
+```
 
 Build a docker image for production:
 
@@ -85,13 +99,13 @@ $ docker run -it --rm -p 8080:80 --name web sb
 
 You can access port 8080.
 
-**NOTE**: https://tailwindcss.com/docs/installation#post-css-7-compatibility-build
-
 ### CSS preprocessor
 
 you don't need to use a preprocessor with Tailwind.
 
 > **No quirks or workarounds.** Because Tailwind adds some new non-standard keywords to CSS (like `@tailwind`, `@apply`, `theme()`, etc.), you often have to write your CSS in annoying, unintuitive ways to get a preprocessor to give you the expected output. Working exclusively with PostCSS avoids this.
+
+**NOTE**: https://tailwindcss.com/docs/installation#post-css-7-compatibility-build
 
 ## Production
 
