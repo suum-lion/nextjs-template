@@ -6,9 +6,9 @@ name: Storybook Deploy to Vercel
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [storybook]
+    branches: [feature/deploy-vercel]
   pull_request:
-    branches: [storybook]
+    branches: [feature/deploy-vercel]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
