@@ -21,6 +21,10 @@ jobs:
     strategy:
       matrix:
         node: ['15.5']
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -43,14 +47,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           description: 'Preview my app'
           environment: preview
-      - uses: shallwefootball/s3-upload-action@master
-        name: Upload S3
-        id: S3
+      - name: Deploy
+        uses: lbertenasco/s3-deploy@v1
         with:
-          aws_key_id: ${{ secrets.AWS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_bucket: ${{ secrets.AWS_BUCKET }}
-          source_dir: 'shared-ui'
+          folder: 'shared-ui'
+          bucket: ${{ secrets.AWS_BUCKET }}
+          dist-id: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+          invalidation: / *
       - name: Update deployment status (success)
         if: success()
         uses: chrnorm/deployment-status@releases/v1
