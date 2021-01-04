@@ -1,0 +1,61 @@
+name: Storybook Deploy to AWS
+
+# Controls when the action will run.
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [feature/deploy-aws]
+  pull_request:
+    branches: [feature/deploy-aws]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node: ['15.5']
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - name: Use Node ${{ matrix.node }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Yarn Install
+        run: |
+          yarn
+      - name: Build Storybook
+        run: |
+          yarn build-sb
+      - uses: chrnorm/deployment-action@releases/v1
+        name: Create GitHub deployment
+        id: test
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          description: 'Preview my app'
+          environment: preview
+      - uses: shallwefootball/s3-upload-action@master
+        name: Upload S3
+        id: S3
+        with:
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_bucket: ${{ secrets.AWS_BUCKET }}
+          source_dir: 'shared-ui'
+      - name: Update deployment status (success)
+        if: success()
+        uses: chrnorm/deployment-status@releases/v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          target_url: https://aws-bucket.s3.ap-northeast-2.amazonaws.com/${{steps.S3.outputs.object_key}}/index.html
+          state: 'success'
+          deployment_id: ${{ steps.test.outputs.deployment_id }}
